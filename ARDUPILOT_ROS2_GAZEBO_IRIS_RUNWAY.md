@@ -63,8 +63,10 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 # Install ROS 2 Humble
 sudo apt update
 sudo apt upgrade
+# Install desktop version (includes ros-base + visualization tools)
 sudo apt install ros-humble-desktop
-sudo apt install ros-humble-ros-base
+# OR install base version only (lighter, without GUI tools)
+# sudo apt install ros-humble-ros-base
 sudo apt install ros-dev-tools
 
 # Source ROS 2
@@ -112,13 +114,12 @@ cd ~/ardupilot
 ./waf copter
 ```
 
-### 4. Install MAVProxy
+### 4. Verify MAVProxy Installation
+
+MAVProxy was already installed in step 3. Verify the installation:
 
 ```bash
-# Install MAVProxy for ground control station
-pip3 install --user MAVProxy
-
-# Verify installation
+# Verify MAVProxy installation
 mavproxy.py --version
 ```
 
@@ -272,6 +273,10 @@ Create a launch script `start_simulation.sh`:
 ```bash
 #!/bin/bash
 
+# Source ROS 2 environment
+source /opt/ros/humble/setup.bash
+source ~/ros2_ws/install/setup.bash
+
 # Start Gazebo in background
 gazebo --verbose ~/ros2_ws/src/ardupilot_gazebo/worlds/runway.world &
 GAZEBO_PID=$!
@@ -286,8 +291,7 @@ SITL_PID=$!
 
 # Start ROS 2 bridge
 sleep 5
-source ~/ros2_ws/install/setup.bash
-ros2 launch ardupilot_ros ardupilot.launch.py &
+bash -c "source ~/ros2_ws/install/setup.bash && ros2 launch ardupilot_ros ardupilot.launch.py" &
 ROS_PID=$!
 
 # Wait for user interrupt
